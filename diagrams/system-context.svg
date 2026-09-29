@@ -1,0 +1,51 @@
+<svg width="680" height="466" viewBox="0 0 680 466" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Takarda system context diagram</title>
+<desc>Takarda platform at the center, connected to Candidate, School, Employer, Council Officer, and Payment Partner</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="#5F5E5A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<line x1="125" y1="96" x2="300" y2="170" stroke="#5F5E5A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="555" y1="96" x2="390" y2="170" stroke="#5F5E5A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="340" y1="240" x2="340" y2="280" stroke="#5F5E5A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="125" y1="370" x2="290" y2="240" stroke="#5F5E5A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+<line x1="555" y1="370" x2="390" y2="240" stroke="#5F5E5A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+
+<g>
+<rect x="40" y="40" width="170" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="125" y="62" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Candidate</text>
+<text x="125" y="82" text-anchor="middle" font-size="12" fill="#444441">Checks own result</text>
+</g>
+
+<g>
+<rect x="470" y="40" width="170" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="555" y="62" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">School</text>
+<text x="555" y="82" text-anchor="middle" font-size="12" fill="#444441">Downloads results</text>
+</g>
+
+<g>
+<rect x="250" y="170" width="180" height="70" rx="10" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="340" y="196" text-anchor="middle" font-size="14" font-weight="500" fill="#26215C">Takarda</text>
+<text x="340" y="218" text-anchor="middle" font-size="12" fill="#3C3489">Results platform</text>
+</g>
+
+<g>
+<rect x="250" y="280" width="180" height="56" rx="8" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="340" y="302" text-anchor="middle" font-size="14" font-weight="500" fill="#4A1B0C">Payment partner</text>
+<text x="340" y="322" text-anchor="middle" font-size="12" fill="#712B13">Charges cards</text>
+</g>
+
+<g>
+<rect x="40" y="370" width="170" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="125" y="392" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Employer</text>
+<text x="125" y="412" text-anchor="middle" font-size="12" fill="#444441">Verifies certificate</text>
+</g>
+
+<g>
+<rect x="470" y="370" width="170" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="555" y="392" text-anchor="middle" font-size="14" font-weight="500" fill="#2C2C2A">Council officer</text>
+<text x="555" y="412" text-anchor="middle" font-size="12" fill="#444441">Amends, searches</text>
+</g>
+</svg>
