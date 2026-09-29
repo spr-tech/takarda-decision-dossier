@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: Takarda Results Platform API
   description: >
@@ -74,6 +74,11 @@ paths:
   /verifications:
     post:
       summary: Employer verifies one certificate
+      description: >
+        Returns every subject and grade belonging to the certificate being
+        verified (the full result slip for one sitting). Never returns any
+        other sitting belonging to the same candidate, and never returns
+        address, telephone number, or examination centre.
       operationId: verifyCertificate
       security:
         - mutualTLS: []
@@ -253,6 +258,11 @@ components:
 
     VerificationResult:
       type: object
+      description: >
+        Scoped to exactly one certificate (one sitting). Includes every
+        subject on that certificate. Excludes any other sitting belonging
+        to the same candidate, and excludes address, telephone number, and
+        examination centre.
       properties:
         matched:
           type: boolean
@@ -260,10 +270,17 @@ components:
           type: string
         candidateName:
           type: string
-        subject:
+        sittingId:
           type: string
-        grade:
-          type: string
+        subjects:
+          type: array
+          items:
+            type: object
+            properties:
+              subject:
+                type: string
+              grade:
+                type: string
 
     Pin:
       type: object
