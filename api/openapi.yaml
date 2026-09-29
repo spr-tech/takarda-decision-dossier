@@ -1,0 +1,288 @@
+openapi: 3.0.1
+info:
+  title: Takarda Results Platform API
+  description: >
+    API contract for the Takarda platform, serving the National Secondary
+    Certificate Council's results, verification, PIN purchase, school
+    download and amendment workflows.
+  version: 1.0.0
+servers:
+  - url: https://api.takarda.example.com/v1
+    description: Production (v1)
+
+paths:
+  /results/{examNumber}:
+    get:
+      summary: Fetch a candidate's own results for a sitting
+      operationId: getCandidateResults
+      parameters:
+        - name: examNumber
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The candidate's examination number
+        - name: sittingId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Identifies which sitting's results to fetch
+      responses:
+        '200':
+          description: Result found and released
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateResult'
+        '400':
+          description: Malformed or missing examNumber/sittingId
+        '404':
+          description: Candidate or sitting not found
+        '425':
+          description: Sitting exists but results are not yet released
+
+  /schools/{schoolId}/results/{sittingId}:
+    get:
+      summary: School fetches its full candidate result file for a sitting
+      operationId: getSchoolResultFile
+      parameters:
+        - name: schoolId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sittingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pre-generated result file for this school and sitting
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SchoolResultFile'
+        '400':
+          description: Malformed schoolId or sittingId
+        '404':
+          description: School or sitting not found
+        '425':
+          description: Sitting exists but results are not yet released
+
+  /verifications:
+    post:
+      summary: Employer verifies one certificate
+      operationId: verifyCertificate
+      security:
+        - mutualTLS: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [certificateNumber, dateOfBirth]
+              properties:
+                certificateNumber:
+                  type: string
+                dateOfBirth:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Verification result (matched or not matched)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResult'
+        '400':
+          description: Missing or malformed certificateNumber/dateOfBirth
+        '429':
+          description: Rate limit exceeded
+
+  /pins:
+    post:
+      summary: Candidate purchases a result-checker PIN
+      operationId: purchasePin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [requestId, amountKobo]
+              properties:
+                requestId:
+                  type: string
+                  description: Caller-generated idempotency key
+                amountKobo:
+                  type: integer
+                  example: 350000
+      responses:
+        '201':
+          description: PIN issued (or existing result replayed for a repeated requestId)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pin'
+        '400':
+          description: Missing requestId or amountKobo
+        '402':
+          description: Payment failed
+
+  /pins/{pinId}/checks:
+    post:
+      summary: Consume one check against a PIN
+      operationId: consumePinCheck
+      parameters:
+        - name: pinId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                  description: Idempotency key for this specific check consumption
+      responses:
+        '200':
+          description: Check consumed successfully
+        '409':
+          description: PIN already exhausted (remaining_checks is zero)
+        '404':
+          description: PIN not found
+
+  /amendments:
+    post:
+      summary: Officer submits a correction to a released result
+      operationId: submitAmendment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [certificateNumber, subject, newGrade, officerId, reason]
+              properties:
+                certificateNumber:
+                  type: string
+                subject:
+                  type: string
+                newGrade:
+                  type: string
+                officerId:
+                  type: string
+                reason:
+                  type: string
+      responses:
+        '201':
+          description: New result version created; prior verifiers queued for notification
+        '400':
+          description: Missing required field
+        '404':
+          description: Certificate not found
+
+  /candidates:
+    get:
+      summary: Officer searches for a candidate by partial surname
+      operationId: searchCandidates
+      parameters:
+        - name: surname
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Partial surname fragment, matched anywhere in the name
+      responses:
+        '200':
+          description: Matching candidates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CandidateSummary'
+        '400':
+          description: Missing or empty surname parameter
+
+components:
+  securitySchemes:
+    mutualTLS:
+      type: mutualTLS
+      description: Client certificate required for the employers' association
+
+  schemas:
+    CandidateResult:
+      type: object
+      properties:
+        examNumber:
+          type: string
+        sittingId:
+          type: string
+        subjects:
+          type: array
+          items:
+            type: object
+            properties:
+              subject:
+                type: string
+              grade:
+                type: string
+
+    SchoolResultFile:
+      type: object
+      properties:
+        schoolId:
+          type: string
+        sittingId:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/CandidateResult'
+
+    VerificationResult:
+      type: object
+      properties:
+        matched:
+          type: boolean
+        certificateNumber:
+          type: string
+        candidateName:
+          type: string
+        subject:
+          type: string
+        grade:
+          type: string
+
+    Pin:
+      type: object
+      properties:
+        pinId:
+          type: string
+        remainingChecks:
+          type: integer
+          example: 5
+        purchasedAt:
+          type: string
+          format: date-time
+
+    CandidateSummary:
+      type: object
+      properties:
+        examNumber:
+          type: string
+        name:
+          type: string
+        school:
+          type: string
